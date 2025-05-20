@@ -29,8 +29,8 @@ namespace Fiap.Check_3.View
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40));
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60));
 
-            var lblRM = new Label { Text = "RM:", Anchor = AnchorStyles.Right, AutoSize = true };
-            var txtRM = new TextBox { Anchor = AnchorStyles.Left, Width = 120 };
+            var lblUsername = new Label { Text = "Usuário:", Anchor = AnchorStyles.Right, AutoSize = true };
+            var txtUsername = new TextBox { Anchor = AnchorStyles.Left, Width = 120 };
 
             var lblPass = new Label { Text = "Senha:", Anchor = AnchorStyles.Right, AutoSize = true };
             var txtPass = new TextBox { Anchor = AnchorStyles.Left, Width = 120, UseSystemPasswordChar = true };
@@ -44,20 +44,25 @@ namespace Fiap.Check_3.View
                 {
                     using (var conn = DbConnection.GetConnection())
                     {
-                        string query = "SELECT COUNT(*) FROM users WHERE rm = :rm AND password = :password";
+                        conn.Open(); // Importante: garante que a conexão foi aberta
+
+                        string query = "SELECT COUNT(*) FROM APP_USERS WHERE USERNAME = :username AND PASSWORD = :password";
                         using (var cmd = new OracleCommand(query, conn))
                         {
-                            cmd.Parameters.Add(new OracleParameter("rm", txtRM.Text));
+                            cmd.Parameters.Add(new OracleParameter("username", txtUsername.Text));
                             cmd.Parameters.Add(new OracleParameter("password", txtPass.Text));
+
                             int count = Convert.ToInt32(cmd.ExecuteScalar());
+
                             if (count > 0)
                             {
+                                MessageBox.Show("Login realizado com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                 DialogResult = DialogResult.OK;
                                 Close();
                             }
                             else
                             {
-                                MessageBox.Show("RM ou senha inválidos.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                MessageBox.Show("Usuário ou senha inválidos.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
                     }
@@ -74,8 +79,8 @@ namespace Fiap.Check_3.View
                 regForm.ShowDialog();
             };
 
-            layout.Controls.Add(lblRM, 0, 0);
-            layout.Controls.Add(txtRM, 1, 0);
+            layout.Controls.Add(lblUsername, 0, 0);
+            layout.Controls.Add(txtUsername, 1, 0);
             layout.Controls.Add(lblPass, 0, 1);
             layout.Controls.Add(txtPass, 1, 1);
             layout.Controls.Add(btnLogin, 0, 2);
